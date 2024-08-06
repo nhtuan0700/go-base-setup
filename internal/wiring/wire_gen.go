@@ -10,7 +10,7 @@ import (
 	"base-setup/internal/app"
 	"base-setup/internal/configs"
 	"base-setup/internal/dataacess/database"
-	"base-setup/internal/handler/v1"
+	"base-setup/internal/handler/http"
 	"base-setup/internal/logic"
 	"base-setup/internal/utils"
 	"github.com/google/wire"
@@ -23,13 +23,13 @@ func InitializeStandaloneServer() (*app.Server, func(), error) {
 	if err != nil {
 		return nil, nil, err
 	}
+	configsHTTP := config.HTTP
+	checkHealthHandler := http.NewCheckHealthHandler()
 	log := config.Log
 	logger, cleanup, err := utils.InitializeLogger(log)
 	if err != nil {
 		return nil, nil, err
 	}
-	http := config.HTTP
-	checkHealthHandler := handler.NewCheckHealthHandler()
 	configsDatabase := config.Database
 	db, err := database.InitializeDB(logger, configsDatabase)
 	if err != nil {
@@ -38,19 +38,18 @@ func InitializeStandaloneServer() (*app.Server, func(), error) {
 	}
 	userDataAccessor := database.NewUserDataAccessor(db, logger)
 	userLogic := logic.NewUserLogic(userDataAccessor, db, logger)
-	userHandler := handler.NewUserHandler(userLogic, logger)
-	postHandler := handler.NewPostHandler(userLogic, logger)
-	handlerHandler := handler.Handler{
+	userHandler := http.NewUserHandler(userLogic, logger)
+	handler := http.Handler{
 		CheckHealthHandler: checkHealthHandler,
 		UserHandler:        userHandler,
-		PostHandler:        postHandler,
 	}
-	server := app.NewStandaloneServer(logger, http, handlerHandler)
-	return server, func() {
+	server := http.NewServer(configsHTTP, handler, logger)
+	appServer := app.NewStandaloneServer(server, logger)
+	return appServer, func() {
 		cleanup()
 	}, nil
 }
 
 // wire.go:
 
-var WireSet = wire.NewSet(utils.WireSet, app.WireSet, configs.WireSet, handler.WireSet, logic.WireSet, database.WireSet)
+var WireSet = wire.NewSet(utils.WireSet, app.WireSet, configs.WireSet, http.WireSet, logic.WireSet, database.WireSet)

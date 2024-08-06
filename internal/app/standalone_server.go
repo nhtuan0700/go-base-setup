@@ -1,55 +1,35 @@
 package app
 
 import (
-	"base-setup/internal/configs"
-	"base-setup/internal/handler/v1"
+	"base-setup/internal/handler/http"
 	"base-setup/internal/utils"
-	"fmt"
-	"log"
+	"context"
 	"syscall"
 
-	"github.com/gin-contrib/cors"
-	"github.com/gin-gonic/gin"
 	"go.uber.org/zap"
 )
 
 type Server struct {
+	httpServer http.Server
 	logger     *zap.Logger
-	httpConfig configs.HTTP
-	handler    handler.Handler
 }
 
 func NewStandaloneServer(
+	httpServer http.Server,
 	logger *zap.Logger,
-	httpConfig configs.HTTP,
-	handler handler.Handler,
 ) *Server {
 	return &Server{
+		httpServer: httpServer,
 		logger:     logger,
-		httpConfig: httpConfig,
-		handler:    handler,
 	}
 }
 
 func (s Server) Start() error {
 	go func() {
-		server := gin.Default()
-
-		config := cors.DefaultConfig()
-		config.AllowAllOrigins = true
-		server.Use(cors.New(config))
-
-		s.handler.RegisterRoutes(server)
-
-		address := fmt.Sprintf("%s:%s", s.httpConfig.Address, s.httpConfig.Port)
-		log.Println("Starting on: " + address)
-		s.logger.Info("Starting on: " + address)
-		_ = server.Run()
-
-		// s.logger.Error().Stack().Err(errors.WithStack(err)).Send()
+		err := s.httpServer.Start(context.Background())
+		s.logger.With(zap.Error(err)).Info("http server stopped")
 	}()
 
 	utils.BlockUntilSignal(syscall.SIGINT, syscall.SIGTERM)
-
 	return nil
 }

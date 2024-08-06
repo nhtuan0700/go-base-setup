@@ -49,6 +49,7 @@ func InitializeLogger(cfg configs.Log) (*zap.Logger, func(), error) {
 
 func LoggerWithContext(ctx context.Context, logger *zap.Logger) *zap.Logger {
 	requestID, ok := ctx.Value(common.RequestIDContext).(string)
+	fmt.Println(1111, requestID)
 	if ok {
 		newLogger := logger.With(zap.String("request_id", requestID))
 		return newLogger
