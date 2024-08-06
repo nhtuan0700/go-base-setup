@@ -10,15 +10,15 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/gin-gonic/gin/binding"
-	"github.com/rs/zerolog"
+	"go.uber.org/zap"
 )
 
 type PostHandler struct {
 	userLogic logic.UserLogic
-	logger    *zerolog.Logger
+	logger    *zap.Logger
 }
 
-func NewPostHandler(userLogic logic.UserLogic, logger *zerolog.Logger) PostHandler {
+func NewPostHandler(userLogic logic.UserLogic, logger *zap.Logger) PostHandler {
 	return PostHandler{
 		userLogic: userLogic,
 		logger:    logger,

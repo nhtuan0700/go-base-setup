@@ -7,8 +7,7 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/pkg/errors"
-	"github.com/rs/zerolog"
+	"go.uber.org/zap"
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
 	"gorm.io/gorm/logger"
@@ -20,7 +19,7 @@ func getDSN(dbConfig configs.Database) string {
 }
 
 type gormZeroLog struct {
-	logger *zerolog.Logger
+	logger *zap.Logger
 }
 
 func (la gormZeroLog) LogMode(_ logger.LogLevel) logger.Interface {
@@ -28,30 +27,31 @@ func (la gormZeroLog) LogMode(_ logger.LogLevel) logger.Interface {
 }
 
 func (la gormZeroLog) Info(ctx context.Context, s string, args ...interface{}) {
-	utils.LoggerWithContext(ctx, la.logger).Info().Any("args", args)
+	utils.LoggerWithContext(ctx, la.logger).With(zap.Any("args", args)).Info(s)
 }
 
 func (la gormZeroLog) Warn(ctx context.Context, s string, args ...interface{}) {
-	utils.LoggerWithContext(ctx, la.logger).Warn().Any("args", args)
+	utils.LoggerWithContext(ctx, la.logger).With(zap.Any("args", args)).Warn(s)
 }
 
 func (la gormZeroLog) Error(ctx context.Context, s string, args ...interface{}) {
-	utils.LoggerWithContext(ctx, la.logger).Error().Any("args", args)
+	utils.LoggerWithContext(ctx, la.logger).With(zap.Any("args", args)).Error(s)
 }
 
 func (la gormZeroLog) Trace(ctx context.Context, begin time.Time, fc func() (string, int64), err error) {
 	sql, rows := fc()
 
-	utils.LoggerWithContext(ctx, la.logger).Debug().
-		Str("sql", sql).
-		Dur("elapsed", time.Since(begin)).
-		Int64("rows", rows).
-		Err(errors.WithStack(err)).
-		Send()
+	utils.LoggerWithContext(ctx, la.logger).Debug(
+		"debug: ",
+		zap.String("sql", sql),
+		zap.Duration("elapsed", time.Since(begin)),
+		zap.Int64("rows", rows),
+		zap.Error(err),
+	)	
 }
 
 func InitializeDB(
-	logger *zerolog.Logger,
+	logger *zap.Logger,
 	dbConfig configs.Database,
 ) (*gorm.DB, error) {
 	db, err := gorm.Open(mysql.Open(getDSN(dbConfig)), &gorm.Config{

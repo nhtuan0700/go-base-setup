@@ -5,7 +5,7 @@ import (
 	"base-setup/internal/handler/dto"
 	"context"
 
-	"github.com/rs/zerolog"
+	"go.uber.org/zap"
 	"gorm.io/gorm"
 )
 
@@ -19,13 +19,13 @@ type UserLogic interface {
 type userLogic struct {
 	userDataAccessor database.UserDataAccessor
 	db               *gorm.DB
-	logger           *zerolog.Logger
+	logger           *zap.Logger
 }
 
 func NewUserLogic(
 	userDataAccessor database.UserDataAccessor,
 	db *gorm.DB,
-	logger *zerolog.Logger,
+	logger *zap.Logger,
 ) UserLogic {
 	return userLogic{
 		userDataAccessor: userDataAccessor,

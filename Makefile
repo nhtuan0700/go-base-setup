@@ -1,13 +1,13 @@
-RUN_GO=docker compose exec go
+# RUN_GO=docker compose exec go
 DB_CONFIG=-config=internal/dataacess/database/migrations/dbconfig.yml
 
 .PHONY: wire
 wire:
-	$(RUN_GO) wire internal/wiring/wire.go
+	wire internal/wiring/wire.go
 
 .PHONY: start
 start:
-	$(RUN_GO) go run cmd/*.go
+	go run cmd/*.go start
 
 .PHONY: migrate-new
 migrate-new:
@@ -16,10 +16,10 @@ migrate-new:
 
 .PHONY: migrate-up
 migrate-up:
-	$(RUN_GO) sql-migrate up ${DB_CONFIG}
+	sql-migrate up ${DB_CONFIG}
 
 .PHONY: migrate-down
 migrate-down:
 	@read -p  "Enter your step num you want to migrate down: " NUM; \
-	$(RUN_GO) sql-migrate down ${DB_CONFIG} -limit=$$NUM
+	sql-migrate down ${DB_CONFIG} -limit=$$NUM
 

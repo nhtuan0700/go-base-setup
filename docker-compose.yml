@@ -1,5 +1,5 @@
 services:
-  go:
+  backend:
     build:
       context: .
       dockerfile: ./docker/go/Dockerfile

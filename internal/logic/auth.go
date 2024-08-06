@@ -23,19 +23,17 @@ func NewAuthLogic(userDataAccessor database.UserDataAccessor) AuthLogic {
 }
 
 func (a authLogic) Login(ctx context.Context, req dto.LoginRequest) (dto.LoginResponse, error) {
-	
+	return dto.LoginResponse{}, nil
 }
 
 func (a authLogic) Register(ctx context.Context, req dto.RegisterRequest) (dto.RegisterResponse, error) {
-	user, err := a.userDataAccessor.GetByEmail(ctx, req.Email)
-	if err == database.DBOK {
-		return false, 
-	}
+	// user, err := a.userDataAccessor.GetByEmail(ctx, req.Email)
+	// if err == database.DBOK {
+	// 	return false, 
+	// }
 	// if err != nil && errors.Is(err) {
 		// return false, err
 	// }
-
-	
 
 	return true, nil
 }

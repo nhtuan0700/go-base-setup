@@ -5,15 +5,15 @@ import (
 	"base-setup/internal/logic"
 
 	"github.com/gin-gonic/gin"
-	"github.com/rs/zerolog"
+	"go.uber.org/zap"
 )
 
 type AuthHandler struct {
 	authLogic logic.UserLogic
-	logger    *zerolog.Logger
+	logger    *zap.Logger
 }
 
-func NewAuthHandler(authLogic logic.UserLogic, logger *zerolog.Logger) AuthHandler {
+func NewAuthHandler(authLogic logic.UserLogic, logger *zap.Logger) AuthHandler {
 	return AuthHandler{
 		authLogic: authLogic,
 		logger:    logger,

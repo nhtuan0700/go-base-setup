@@ -6,7 +6,7 @@ import (
 	"time"
 
 	"github.com/pkg/errors"
-	"github.com/rs/zerolog"
+	"go.uber.org/zap"
 	"gorm.io/gorm"
 )
 
@@ -30,12 +30,12 @@ type UserDataAccessor interface {
 
 type userDataAccessor struct {
 	db     *gorm.DB
-	logger *zerolog.Logger
+	logger *zap.Logger
 }
 
 func NewUserDataAccessor(
 	db *gorm.DB,
-	logger *zerolog.Logger,
+	logger *zap.Logger,
 ) UserDataAccessor {
 	return &userDataAccessor{
 		db:     db,
@@ -51,7 +51,7 @@ func (u userDataAccessor) WithDB(db *gorm.DB) UserDataAccessor {
 }
 
 func (u userDataAccessor) GetByID(ctx context.Context, id uint64) (User, ErrorCode) {
-	logger := utils.LoggerWithContext(ctx, u.logger).With().Uint64("id", id).Logger()
+	logger := utils.LoggerWithContext(ctx, u.logger).With(zap.Uint64("id", id))
 
 	user := User{}
 	result := u.db.WithContext(ctx).
@@ -63,7 +63,7 @@ func (u userDataAccessor) GetByID(ctx context.Context, id uint64) (User, ErrorCo
 			return User{}, DBDataNotFound
 		}
 
-		logger.Error().Stack().Err(errors.WithStack(err)).Msg("failed to get user")
+		logger.With(zap.Error(err)).Error("failed to get user")
 		return user, DBGetFailed
 	}
 
@@ -71,10 +71,10 @@ func (u userDataAccessor) GetByID(ctx context.Context, id uint64) (User, ErrorCo
 }
 
 func (u userDataAccessor) Create(ctx context.Context, user User) (uint64, ErrorCode) {
-	logger := utils.LoggerWithContext(ctx, u.logger).With().Any("user", user).Logger()
+	logger := utils.LoggerWithContext(ctx, u.logger).With(zap.Any("user", user))
 
 	if err := u.db.WithContext(ctx).Create(&user).Error; err != nil {
-		logger.Error().Err(errors.WithStack(err)).Msg("failed to create user")
+		logger.With(zap.Error(err)).Error("failed to create user")
 		return 0, DBInsertFailed
 	}
 
@@ -82,10 +82,10 @@ func (u userDataAccessor) Create(ctx context.Context, user User) (uint64, ErrorC
 }
 
 func (u userDataAccessor) Update(ctx context.Context, user User) ErrorCode {
-	logger := utils.LoggerWithContext(ctx, u.logger).With().Any("user", user).Logger()
+	logger := utils.LoggerWithContext(ctx, u.logger).With(zap.Any("user", user))
 
 	if err := u.db.WithContext(ctx).Save(&user).Error; err != nil {
-		logger.Error().Err(errors.WithStack(err)).Msg("failed to update user")
+		logger.With(zap.Error(err)).Error("failed to update user")
 		return DBUpdateFailed
 	}
 
@@ -93,10 +93,10 @@ func (u userDataAccessor) Update(ctx context.Context, user User) ErrorCode {
 }
 
 func (u userDataAccessor) Delete(ctx context.Context, id uint64) ErrorCode {
-	logger := utils.LoggerWithContext(ctx, u.logger).With().Any("id", id).Logger()
+	logger := utils.LoggerWithContext(ctx, u.logger).With(zap.Any("id", id))
 
 	if err := u.db.WithContext(ctx).Delete(&User{ID: id}).Error; err != nil {
-		logger.Error().Stack().Err(errors.WithStack(err)).Msg("failed to delete user")
+		logger.With(zap.Error(err)).Error("failed to delete user")
 		return DBDeleteFailed
 	}
 
@@ -104,7 +104,7 @@ func (u userDataAccessor) Delete(ctx context.Context, id uint64) ErrorCode {
 }
 
 func (u userDataAccessor) GetByEmail(ctx context.Context, email string) (User, ErrorCode) {
-	logger := utils.LoggerWithContext(ctx, u.logger).With().Str("email", email).Logger()
+	logger := utils.LoggerWithContext(ctx, u.logger).With(zap.String("email", email))
 
 	user := User{}
 	result := u.db.WithContext(ctx).
@@ -116,7 +116,7 @@ func (u userDataAccessor) GetByEmail(ctx context.Context, email string) (User, E
 			return user, DBDataNotFound
 		}
 
-		logger.Error().Stack().Err(errors.WithStack(err)).Msg("failed to get user by email")
+		logger.With(zap.Error(err)).Error("failed to get user by email")
 		return user, DBGetFailed
 	}
 

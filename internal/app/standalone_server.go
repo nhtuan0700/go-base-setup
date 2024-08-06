@@ -10,17 +10,17 @@ import (
 
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
-	"github.com/rs/zerolog"
+	"go.uber.org/zap"
 )
 
 type Server struct {
-	logger     *zerolog.Logger
+	logger     *zap.Logger
 	httpConfig configs.HTTP
 	handler    handler.Handler
 }
 
-func NewServer(
-	logger *zerolog.Logger,
+func NewStandaloneServer(
+	logger *zap.Logger,
 	httpConfig configs.HTTP,
 	handler handler.Handler,
 ) *Server {
@@ -43,7 +43,7 @@ func (s Server) Start() error {
 
 		address := fmt.Sprintf("%s:%s", s.httpConfig.Address, s.httpConfig.Port)
 		log.Println("Starting on: " + address)
-		s.logger.Info().Msg("Starting on: " + address)
+		s.logger.Info("Starting on: " + address)
 		_ = server.Run()
 
 		// s.logger.Error().Stack().Err(errors.WithStack(err)).Send()

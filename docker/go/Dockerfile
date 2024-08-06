@@ -1,17 +1,16 @@
 FROM golang:1.22.5 AS base_app
 
-WORKDIR /app
+WORKDIR /app 
+
+RUN apt-get update && apt-get install -y \
+  make
 
 ARG user=appuser
 ARG group=appuser
 ARG uid=1000
 ARG gid=1000
 RUN groupadd -g ${gid} ${group}
-RUN useradd -u ${uid} -g ${group} -s /bin/sh -m ${user} 
-
-RUN apt-get update && apt-get install -y \
-  make
-
+RUN useradd -u ${uid} -g ${group} -s /bin/sh -m ${user}
 # Switch to user
 USER ${uid}:${gid}
 
@@ -20,3 +19,5 @@ RUN curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/master/i
 RUN go install github.com/rubenv/sql-migrate/...@latest
 
 COPY go.mod go.sum /app/
+
+RUN go mod download

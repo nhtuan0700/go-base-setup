@@ -5,8 +5,7 @@ import (
 	"context"
 	"time"
 
-	"github.com/pkg/errors"
-	"github.com/rs/zerolog"
+	"go.uber.org/zap"
 	"gorm.io/gorm"
 )
 
@@ -25,12 +24,12 @@ type PostDataAccessor interface {
 
 type postDataAccessor struct {
 	db     *gorm.DB
-	logger *zerolog.Logger
+	logger *zap.Logger
 }
 
 func NewPostDataAccessor(
 	db *gorm.DB,
-	logger *zerolog.Logger,
+	logger *zap.Logger,
 ) PostDataAccessor {
 	return &postDataAccessor{
 		db:     db,
@@ -46,10 +45,10 @@ func (u postDataAccessor) WithDB(db *gorm.DB) PostDataAccessor {
 }
 
 func (u postDataAccessor) Create(ctx context.Context, post Post) (uint64, error) {
-	logger := utils.LoggerWithContext(ctx, u.logger).With().Any("post", post).Logger()
+	logger := utils.LoggerWithContext(ctx, u.logger).With(zap.Any("post", post))
 
 	if err := u.db.WithContext(ctx).Create(&post).Error; err != nil {
-		logger.Error().Err(errors.WithStack(err)).Msg("failed to create post")
+		logger.With(zap.Error(err)).Error("failed to create post")
 		return 0, err
 	}
 

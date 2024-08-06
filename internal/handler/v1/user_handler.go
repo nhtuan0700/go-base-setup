@@ -8,15 +8,15 @@ import (
 	"strconv"
 
 	"github.com/gin-gonic/gin"
-	"github.com/rs/zerolog"
+	"go.uber.org/zap"
 )
 
 type UserHandler struct {
 	userLogic logic.UserLogic
-	logger    *zerolog.Logger
+	logger    *zap.Logger
 }
 
-func NewUserHandler(userLogic logic.UserLogic, logger *zerolog.Logger) UserHandler {
+func NewUserHandler(userLogic logic.UserLogic, logger *zap.Logger) UserHandler {
 	return UserHandler{
 		userLogic: userLogic,
 		logger:    logger,

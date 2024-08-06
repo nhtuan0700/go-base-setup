@@ -39,15 +39,8 @@ var startCommand = &cobra.Command{
 	},
 }
 
-func initConfig() {
-
-}
-
-func init() {
-	rootCmd.AddCommand(startCommand)
-}
-
 func main() {
+	rootCmd.AddCommand(startCommand)
 	if err := rootCmd.Execute(); err != nil {
 		fmt.Println(err)
 		os.Exit(1)

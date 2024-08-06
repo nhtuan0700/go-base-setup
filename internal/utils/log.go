@@ -4,68 +4,69 @@ import (
 	"base-setup/internal/common"
 	"base-setup/internal/configs"
 	"context"
+	"fmt"
+	"log"
 	"os"
-	"path/filepath"
 
-	"github.com/rs/zerolog"
-	"github.com/rs/zerolog/pkgerrors"
+	"go.uber.org/zap"
 )
 
-type Logger interface {
-	
-}
-
-func getLoggerLevel(level string) zerolog.Level {
+func getZapLoggerLevel(level string) zap.AtomicLevel {
 	switch level {
 	case "debug":
-		return zerolog.DebugLevel
+		return zap.NewAtomicLevelAt(zap.DebugLevel)
 	case "info":
-		return zerolog.InfoLevel
+		return zap.NewAtomicLevelAt(zap.InfoLevel)
 	case "warn":
-		return zerolog.WarnLevel
+		return zap.NewAtomicLevelAt(zap.WarnLevel)
 	case "error":
-		return zerolog.ErrorLevel
-	case "panic":
-		return zerolog.PanicLevel
+		return zap.NewAtomicLevelAt(zap.ErrorLevel)
+	default:
+		return zap.NewAtomicLevelAt(zap.InfoLevel)
 	}
-	return zerolog.InfoLevel
 }
 
-func InitializeLogger(logConfig configs.Log) (*zerolog.Logger, func(), error) {
-	logDir := "logs"
-
-	if _, err := os.Stat(logDir); os.IsNotExist(err) {
-		err := os.Mkdir(logDir, 0755)
-		if err != nil {
-			return nil, nil, err
-		}
-	}
-
-	logPath := filepath.Join(logDir, "app.log")
-
-	file, err := os.OpenFile(logPath, os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0666)
+func InitializeLogger(cfg configs.Log) (*zap.Logger, func(), error) {
+	config := zap.NewProductionConfig()
+	filePath, err := getLogFilePath()
 	if err != nil {
 		return nil, nil, err
 	}
+	config.OutputPaths = append(config.OutputPaths, filePath)
 
+	config.Level = getZapLoggerLevel(cfg.Level)
+
+	logger, err := config.Build()
+	if err != nil {
+		log.Fatalf("can't initialize zap logger: %v", err)
+	}
 	cleanup := func() {
-		_ = file.Close()
+		logger.Sync()
 	}
 
-	multi := zerolog.MultiLevelWriter(file, zerolog.ConsoleWriter{Out: os.Stderr})
-	logger := zerolog.New(multi).With().Timestamp().Stack().Logger()
-	zerolog.ErrorStackMarshaler = pkgerrors.MarshalStack
-	zerolog.SetGlobalLevel(getLoggerLevel(logConfig.Level))
-
-	return &logger, cleanup, nil
+	return logger, cleanup, nil
 }
 
-func LoggerWithContext(ctx context.Context, logger *zerolog.Logger) *zerolog.Logger {
+func LoggerWithContext(ctx context.Context, logger *zap.Logger) *zap.Logger {
 	requestID, ok := ctx.Value(common.RequestIDContext).(string)
 	if ok {
-		newLogger := logger.With().Str("request_id", requestID).Logger()
-		return &newLogger
+		newLogger := logger.With(zap.String("request_id", requestID))
+		return newLogger
 	}
 
 	return logger
+}
+
+func getLogFilePath() (string, error) {
+	wd, err := os.Getwd()
+	if err != nil {
+		return "", err
+	}
+	// fileInfo, errs := os.Stat(filename)
+	// if errs != nil {
+	// 	println("Error getting file information:", errs)
+	// 	return
+	// }
+
+	return fmt.Sprintf("%s/app.log", wd), nil
 }

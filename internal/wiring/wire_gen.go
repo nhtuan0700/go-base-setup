@@ -45,7 +45,7 @@ func InitializeStandaloneServer() (*app.Server, func(), error) {
 		UserHandler:        userHandler,
 		PostHandler:        postHandler,
 	}
-	server := app.NewServer(logger, http, handlerHandler)
+	server := app.NewStandaloneServer(logger, http, handlerHandler)
 	return server, func() {
 		cleanup()
 	}, nil
