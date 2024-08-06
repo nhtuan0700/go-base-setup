@@ -2,7 +2,7 @@ package logic
 
 import (
 	"base-setup/internal/dataacess/database"
-	"base-setup/internal/handler/dto"
+	"base-setup/internal/dto"
 	"context"
 
 )

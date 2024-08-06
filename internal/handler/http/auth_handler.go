@@ -1,10 +1,9 @@
-package handler
+package http
 
 import (
-	"base-setup/internal/handler/dto"
 	"base-setup/internal/logic"
 
-	"github.com/gin-gonic/gin"
+	"github.com/labstack/echo/v4"
 	"go.uber.org/zap"
 )
 
@@ -20,17 +19,11 @@ func NewAuthHandler(authLogic logic.UserLogic, logger *zap.Logger) AuthHandler {
 	}
 }
 
-func (h AuthHandler) SetHandler(rg *gin.RouterGroup) {
-	g := rg.Group("auth")
+func (h AuthHandler) SetHandler(rg echo.Group) {
+	g := rg.Group("/auth")
 	g.POST("/login", h.login)
 }
 
-func (h AuthHandler) login(c *gin.Context) {
-	var req dto.LoginRequest
-
-	if err := c.ShouldBindJSON(&req); err != nil {
-
-	}
-
-	
+func (h AuthHandler) login(c echo.Context) error {
+	return nil
 }

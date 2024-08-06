@@ -1,5 +1,7 @@
 package common
 
+type ContextKey string
+
 const (
-	RequestIDContext = "RequestIDKey"
+	RequestIDContext ContextKey = "RequestIDKey"
 )

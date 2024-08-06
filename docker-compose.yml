@@ -5,6 +5,7 @@ services:
       dockerfile: ./docker/go/Dockerfile
     ports:
       - 8080:8080
+      - 4000:4000
     volumes:
       - .:/app
     env_file:

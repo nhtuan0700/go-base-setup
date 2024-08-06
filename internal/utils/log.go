@@ -68,5 +68,5 @@ func getLogFilePath() (string, error) {
 	// 	return
 	// }
 
-	return fmt.Sprintf("%s/app.log", wd), nil
+	return fmt.Sprintf("%s/logs/app.log", wd), nil
 }

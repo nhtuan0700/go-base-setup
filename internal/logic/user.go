@@ -2,7 +2,7 @@ package logic
 
 import (
 	"base-setup/internal/dataacess/database"
-	"base-setup/internal/handler/dto"
+	"base-setup/internal/dto"
 	"context"
 
 	"go.uber.org/zap"
@@ -54,7 +54,7 @@ func (u userLogic) CreateUser(ctx context.Context, req dto.CreateUserRequest) (d
 		Email: req.Email,
 		Name:  req.Name,
 	})
-	if err != database.DBInsertFailed {
+	if err != database.DBOK {
 		return dto.CreateUserResponse{}, ErrInternal
 	}
 

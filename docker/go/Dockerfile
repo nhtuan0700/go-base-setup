@@ -21,3 +21,5 @@ RUN go install github.com/rubenv/sql-migrate/...@latest
 COPY go.mod go.sum /app/
 
 RUN go mod download
+
+RUN CGO_ENABLED=0 go install -ldflags "-s -w -extldflags '-static'" github.com/go-delve/delve/cmd/dlv@latest
