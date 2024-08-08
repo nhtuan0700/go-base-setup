@@ -1,20 +1,26 @@
 package http
 
 import (
+	"base-setup/internal/logic"
 	"base-setup/internal/validation"
+	"errors"
 	"net/http"
 
 	"github.com/labstack/echo/v4"
 )
 
-type ErrorResponse struct {
+type Error400Response struct {
 	Message string `json:"message"`
 	Details any    `json:"details"`
 }
 
+type ErrorResponse struct {
+	Message string `json:"message"`
+}
+
 func Set400Response(c echo.Context, err error) error {
-	res := ErrorResponse{
-		Message: "invalid data",
+	res := Error400Response{
+		Message: "Bad request",
 	}
 
 	switch e := err.(type) {
@@ -30,11 +36,9 @@ func Set200Response(c echo.Context, data any) error {
 	return c.JSON(http.StatusOK, data)
 }
 
-func Set404Response(c echo.Context) error {
-	return c.JSON(http.StatusNotFound, map[string]string{"message": "Model not found"})
+func SetErrorResponse(c echo.Context, err error) error {
+	if errors.Is(err, logic.ErrNotFound) {
+		return c.JSON(http.StatusNotFound, ErrorResponse{Message: "Resource not found"})
+	}
+	return c.JSON(http.StatusInternalServerError, ErrorResponse{Message: err.Error()})
 }
-
-func Set500Response(c echo.Context, err error) error{
-	return c.JSON(http.StatusInternalServerError, map[string]string{"message": err.Error()})
-}
-

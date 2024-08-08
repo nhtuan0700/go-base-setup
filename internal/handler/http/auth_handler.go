@@ -8,11 +8,11 @@ import (
 )
 
 type AuthHandler struct {
-	authLogic logic.UserLogic
+	authLogic logic.AuthLogic
 	logger    *zap.Logger
 }
 
-func NewAuthHandler(authLogic logic.UserLogic, logger *zap.Logger) AuthHandler {
+func NewAuthHandler(authLogic logic.AuthLogic, logger *zap.Logger) AuthHandler {
 	return AuthHandler{
 		authLogic: authLogic,
 		logger:    logger,
@@ -22,6 +22,10 @@ func NewAuthHandler(authLogic logic.UserLogic, logger *zap.Logger) AuthHandler {
 func (h AuthHandler) SetHandler(rg echo.Group) {
 	g := rg.Group("/auth")
 	g.POST("/login", h.login)
+}
+
+type LoginResponse struct {
+	AccessToken string `json:"access_token"`
 }
 
 func (h AuthHandler) login(c echo.Context) error {

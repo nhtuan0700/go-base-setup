@@ -2,14 +2,22 @@ package logic
 
 import (
 	"base-setup/internal/dataacess/database"
-	"base-setup/internal/dto"
 	"context"
-
 )
 
+type CreateSessionParams struct {
+	Email    string
+	Password string
+}
+
+type RegisterAccountParams struct {
+	Email    string
+	Password string
+}
+
 type AuthLogic interface {
-	Login(ctx context.Context, req dto.LoginRequest) (dto.LoginResponse, error)
-	Register(ctx context.Context, req dto.RegisterRequest) (dto.RegisterResponse, error)
+	CreateSession(ctx context.Context, params CreateSessionParams) (string, error)
+	RegisterAccount(ctx context.Context, params RegisterAccountParams) error
 }
 
 type authLogic struct {
@@ -22,18 +30,18 @@ func NewAuthLogic(userDataAccessor database.UserDataAccessor) AuthLogic {
 	}
 }
 
-func (a authLogic) Login(ctx context.Context, req dto.LoginRequest) (dto.LoginResponse, error) {
-	return dto.LoginResponse{}, nil
+func (a authLogic) CreateSession(ctx context.Context, params CreateSessionParams) (string, error) {
+	return "", nil
 }
 
-func (a authLogic) Register(ctx context.Context, req dto.RegisterRequest) (dto.RegisterResponse, error) {
+func (a authLogic) RegisterAccount(ctx context.Context, params RegisterAccountParams) error {
 	// user, err := a.userDataAccessor.GetByEmail(ctx, req.Email)
 	// if err == database.DBOK {
-	// 	return false, 
+	// 	return false,
 	// }
 	// if err != nil && errors.Is(err) {
-		// return false, err
+	// return false, err
 	// }
 
-	return true, nil
+	return nil
 }

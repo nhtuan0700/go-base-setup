@@ -28,3 +28,7 @@ debug:
 	${RUN_GO} go build -gcflags "all=-N -l" -buildvcs=false -o ./cmd/main-debug ./cmd/*.go
 	${RUN_GO} dlv --listen=:4000 --headless=true --api-version=2 exec ./cmd/main-debug start
 	rm ./cmd/main-debug
+
+.PHONY: generate-swagger
+generate-swagger:
+	swag init -g internal/handler/http/handler.go -o ./docs

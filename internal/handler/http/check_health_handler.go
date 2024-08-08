@@ -1,8 +1,6 @@
 package http
 
 import (
-	"net/http"
-
 	"github.com/labstack/echo/v4"
 )
 
@@ -17,6 +15,19 @@ func (h CheckHealthHandler) SetHandler(rg *echo.Group) {
 	rg.GET("/health", h.get)
 }
 
+type CheckHealthResponse struct {
+	Message string `json:"message" example:"API is ok"`
+}
+
+// get
+// @Summary Check api health
+// @Description Check api health
+// @Accept json
+// @Produce json
+// @Success 200 {object} CheckHealthResponse
+// @Router /health [get]
 func (h CheckHealthHandler) get(c echo.Context) error {
-	return c.JSON(http.StatusOK, map[string]string{"message": "API is ok"})
+	return Set200Response(c, CheckHealthResponse{
+		Message: "API is ok",
+	})
 }
