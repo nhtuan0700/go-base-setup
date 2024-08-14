@@ -19,15 +19,34 @@ func NewAuthHandler(authLogic logic.AuthLogic, logger *zap.Logger) AuthHandler {
 	}
 }
 
-func (h AuthHandler) SetHandler(rg echo.Group) {
+func (h AuthHandler) SetHandler(rg *echo.Group) {
 	g := rg.Group("/auth")
-	g.POST("/login", h.login)
+	g.POST("/register", h.register)
 }
 
-type LoginResponse struct {
-	AccessToken string `json:"access_token"`
+type RegisterRequest struct {
+	Name     string `json:"name"`
+	Email    string `json:"email"`
+	Password string `json:"password"`
 }
 
-func (h AuthHandler) login(c echo.Context) error {
-	return nil
+func (h AuthHandler) register(c echo.Context) error {
+	var req RegisterRequest
+	if err := c.Bind(&req); err != nil {
+		return Set400Response(c, err)
+	}
+
+	if e := c.Validate(req); e != nil {
+		return Set400Response(c, e)
+	}
+	err := h.authLogic.RegisterAccount(c.Request().Context(), logic.RegisterAccountParams{
+		Email:    req.Email,
+		Name:     req.Name,
+		Password: req.Password,
+	})
+	if err != nil {
+		return SetErrorResponse(c, err)
+	}
+
+	return Set200Response(c, true)
 }

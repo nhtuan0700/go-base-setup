@@ -6,6 +6,6 @@ var WireSet = wire.NewSet(
 	NewServer,
 	NewCheckHealthHandler,
 	NewUserHandler,
-	// NewPostHandler,
+	NewAuthHandler,
 	wire.Struct(new(Handler), "*"),
 )

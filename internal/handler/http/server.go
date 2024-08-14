@@ -35,7 +35,6 @@ func NewServer(
 	}
 }
 
-
 func (s server) Start(ctx context.Context) error {
 	logger := utils.LoggerWithContext(ctx, s.logger)
 

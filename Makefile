@@ -31,4 +31,4 @@ debug:
 
 .PHONY: generate-swagger
 generate-swagger:
-	swag init -g internal/handler/http/handler.go -o ./docs
+	${RUN_GO} swag init -g internal/handler/http/handler.go -o ./docs

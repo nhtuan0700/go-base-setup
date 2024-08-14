@@ -17,6 +17,8 @@ USER ${uid}:${gid}
 RUN go install github.com/google/wire/cmd/wire@latest
 RUN curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh | sh -s -- -b $(go env GOPATH)/bin v1.59.0
 RUN go install github.com/rubenv/sql-migrate/...@latest
+RUN go install github.com/swaggo/swag/cmd/swag@latest
+
 
 COPY go.mod go.sum /app/
 

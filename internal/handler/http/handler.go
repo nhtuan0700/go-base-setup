@@ -10,6 +10,7 @@ import (
 type Handler struct {
 	CheckHealthHandler CheckHealthHandler
 	UserHandler        UserHandler
+	AuthHandler        AuthHandler
 }
 
 // @title           Go example
@@ -33,5 +34,5 @@ func (h Handler) RegisterRoutes(r *echo.Echo) {
 
 	h.CheckHealthHandler.SetHandler(rg)
 	h.UserHandler.SetHandler(rg)
-	// h.PostHandler.SetHandler(rg)
+	h.AuthHandler.SetHandler(rg)
 }

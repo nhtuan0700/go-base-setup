@@ -1,0 +1,33 @@
+[PgMerchant]
+ShopId              = "tshop00064851"
+ShopPass            = "4fvsacgn"
+ApiEndpoint         = "https://stg.openapi.mul-pay.jp/"
+Name                = "testShop"
+NameKana            = "テストショップ"
+NameAlphabet        = "testShop"
+NameShort           = "testShop"
+ContactName         = "サポートセンター"
+ContactEmail        = "jy5kisok@gmail.com"
+ContactUrl          = "https://www.gmogshd.com/contact/"
+ContactPhone        = "03-6415-6100"
+ContactOpeningHours = "09:30-18:30"
+
+[Database]
+Username = "altusAdbance"
+Password = "altusAdbance"
+Host     = "127.0.0.1"
+Port     = "3306"
+Name     = "altusAdbance"
+
+[ApiConfig]
+EmailFrom      = "info@altusAdbance.gmogshd.com"
+FrontEndUrl    = "http://localhost:8080"
+SignUpPath     = "/signup"
+PgCallBackPath = "/cb"
+
+[ApiConfig.MailClient]
+MxHost   = "smtp.gmail.com"
+Host     = "smtp.gmail.com"
+User     = "user"
+Password = "password"
+Tls      = true

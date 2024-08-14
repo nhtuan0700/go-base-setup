@@ -8,18 +8,77 @@ services:
       - 4000:4000
     volumes:
       - .:/app
-    env_file:
-      - .env
     tty: true
 
-  mysql:
-    build: docker/mysql/
+  db:
+    build:
+      context: .
+      dockerfile: ./docker/db/Dockerfile
     ports:
-      - 13306:3306
+      - '3306:3306'
+    volumes:
+      - 'db_data:/bitnami/mariadb'
     env_file:
       - .env
     environment:
-      - MYSQL_DATABASE=${DB_DATABASE}
-      - MYSQL_USER=${DB_USER}
-      - MYSQL_PASSWORD=${DB_PASSWORD}
-      - MYSQL_ROOT_PASSWORD=root
+      - MARIADB_GALERA_CLUSTER_NAME=mariadb-cluster
+      - MARIADB_EXTRA_FLAGS=--max-connect-errors=1000 --max_connections=155
+      - MARIADB_GALERA_FORCE_SAFETOBOOTSTRAP=yes
+      - MARIADB_GALERA_CLUSTER_BOOTSTRAP=1
+      - MARIADB_GALERA_CLUSTER_ADDRESS=gcomm://db:4567
+      - MARIADB_GALERA_NODE_NAME=node1
+      - MARIADB_GALERA_MARIABACKUP_USER=backup_user
+      - MARIADB_GALERA_MARIABACKUP_PASSWORD=backup_pwd
+      - MARIADB_REPLICATION_USER=rep_user
+      - MARIADB_REPLICATION_PASSWORD=rep_pwd
+      - MARIADB_DATABASE=${DB_DATABASE}
+      - MARIADB_USER=${DB_USER}
+      - MARIADB_PASSWORD=${DB_PASSWORD}
+      - MARIADB_ROOT_PASSWORD=root
+    healthcheck:
+      test: ['CMD', '/opt/bitnami/scripts/mariadb-galera/healthcheck.sh']
+      interval: 15s
+      timeout: 5s
+      retries: 3
+
+  db2:
+    build:
+      context: .
+      dockerfile: ./docker/db/Dockerfile
+    ports:
+      - '3307:3306'
+    volumes:
+      - 'db_data2:/bitnami/mariadb'
+    env_file:
+      - .env
+    environment:
+      - MARIADB_GALERA_CLUSTER_NAME=mariadb-cluster
+      - MARIADB_EXTRA_FLAGS=--max-connect-errors=1000 --max_connections=155
+      - MARIADB_GALERA_CLUSTER_ADDRESS=gcomm://db:4567,gcomm://db2:4567
+      - MARIADB_GALERA_NODE_NAME=node2
+      - MARIADB_GALERA_MARIABACKUP_USER=backup_user
+      - MARIADB_GALERA_MARIABACKUP_PASSWORD=backup_pwd
+      - MARIADB_REPLICATION_USER=rep_user
+      - MARIADB_REPLICATION_PASSWORD=rep_pwd
+      - MARIADB_DATABASE=${DB_DATABASE}
+      - MARIADB_USER=${DB_USER}
+      - MARIADB_PASSWORD=${DB_PASSWORD}
+      - MARIADB_ROOT_PASSWORD=root
+    healthcheck:
+      test: ['CMD', '/opt/bitnami/scripts/mariadb-galera/healthcheck.sh']
+      interval: 15s
+      timeout: 5s
+      retries: 3
+
+  mailhog:
+    platform: linux/amd64
+    image: mailhog/mailhog:latest
+    ports:
+      - "8025:8025" # MailhogのWebとAPI用のポート
+      - "1025:1025" # SMTPポート
+
+volumes:
+  db_data:
+    driver: local
+  db_data2:
+    driver: local

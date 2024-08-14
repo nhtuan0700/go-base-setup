@@ -39,9 +39,12 @@ func InitializeStandaloneServer() (*app.Server, func(), error) {
 	userDataAccessor := database.NewUserDataAccessor(db, logger)
 	userLogic := logic.NewUserLogic(userDataAccessor, db, logger)
 	userHandler := http.NewUserHandler(userLogic, logger)
+	authLogic := logic.NewAuthLogic(userDataAccessor, logger)
+	authHandler := http.NewAuthHandler(authLogic, logger)
 	handler := http.Handler{
 		CheckHealthHandler: checkHealthHandler,
 		UserHandler:        userHandler,
+		AuthHandler:        authHandler,
 	}
 	server := http.NewServer(configsHTTP, handler, logger)
 	appServer := app.NewStandaloneServer(server, logger)
